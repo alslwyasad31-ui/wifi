@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vortex 4G - بوابة التفعيل</title>
+    <style>
+        :root { --red: #e60000; --dark: #0f172a; }
+        body { background: var(--dark); font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; color: #333; }
+        .card { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 360px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border-top: 8px solid var(--red); }
+        .badge { background: #fee2e2; color: var(--red); padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 14px; margin-bottom: 15px; display: inline-block; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background: var(--red); color: white; border: none; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        #dashboard { display: none; }
+        .progress-container { background: #eee; border-radius: 10px; height: 20px; margin: 20px 0; overflow: hidden; }
+        .progress-bar { background: var(--red); height: 100%; width: 0%; transition: 0.5s; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2 style="color:var(--red)">VORTEX 4G</h2>
+        <div class="badge">باقة 400 ميجا | 4 ساعات</div>
+        
+        <div id="login-form">
+            <input type="text" id="username" placeholder="اسم المستخدم">
+            <input type="password" placeholder="كلمة المرور">
+            <select id="speed">
+                <option value="0.06">سرعة 512K (توفير)</option>
+                <option value="0.25">سرعة 1G (فائقة)</option>
+            </select>
+            <button onclick="startSession()">تفعيل الآن</button>
+        </div>
+
+        <div id="dashboard">
+            <p>مرحباً: <b id="display-name"></b></p>
+            <div style="display:flex; justify-content:space-between; font-size:14px;">
+                <span>المتبقي: <span id="rem">400.00</span> MB</span>
+                <span>المستهلك: <span id="used">0.00</span> MB</span>
+            </div>
+            <div class="progress-container"><div id="bar" class="progress-bar"></div></div>
+            <p style="font-size:12px; color:gray;">يرجى إبقاء هذه الصفحة مفتوحة لمتابعة الرصيد</p>
+        </div>
+    </div>
+
+    <script>
+        let consumption = parseFloat(localStorage.getItem('v_data')) || 0;
+        function startSession() {
+            const user = document.getElementById('username').value;
+            if(!user) return alert("ادخل اسم المستخدم");
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            document.getElementById('display-name').innerText = user;
+            const rate = parseFloat(document.getElementById('speed').value);
+            setInterval(() => {
+                if(consumption < 400) {
+                    consumption += rate;
+                    document.getElementById('used').innerText = consumption.toFixed(2);
+                    document.getElementById('rem').innerText = (400 - consumption).toFixed(2);
+                    document.getElementById('bar').style.width = (consumption/400*100) + "%";
+                    localStorage.setItem('v_data', consumption);
+                } else { alert("انتهى الرصيد!"); location.reload(); }
+            }, 1000);
+        }
+        if(consumption > 0 && consumption < 400) startSession();
+    </script>
+</body>
+</html>
